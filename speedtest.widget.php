@@ -47,7 +47,6 @@ if ($_POST['widgetkey'] && !$_REQUEST['ajax']) {
 	foreach ($ifdescrs as $ifdescr => $ifname) {
 		array_push($validNames, $ifdescr);
 	}
-
 	if (is_array($_POST['ifaces'])) {
 		$user_settings['widgets'][$_POST['widgetkey']]['iffilter'] = implode(',', array_diff($validNames, $_POST['ifaces']));
 	} else {
@@ -59,7 +58,6 @@ if ($_POST['widgetkey'] && !$_REQUEST['ajax']) {
 		$user_settings['widgets'][$_POST['widgetkey']]['ispselected'] = json_encode($isps_list[$isp_selected_key]);
 	} 
     save_widget_settings($_SESSION['Username'], $user_settings["widgets"], gettext("Updated speedtest widget settings via dashboard."));
-
 	header("Location: /");
     exit(0);
 }
@@ -78,12 +76,13 @@ if (isset($_REQUEST['ajax']) && isset($_REQUEST['source_ip']) && isset($_REQUEST
     $st_cmd = 'speedtest -s ' . $_REQUEST['isp_id'] . ' -i ' . $_REQUEST['source_ip'] . ' -f json 2>&1';
     $speedtest = shell_exec($st_cmd);
     $results = '{"iface": "'.$_REQUEST['iface'].'", "cmd": "'.$st_cmd.'", "results": '.end(preg_split("/\n/",trim($speedtest))).'}';
-    $config['widgets']['speedtest2_results'][$_REQUEST['iface']] = $results;
+   
+    $config['widgets']['speedtest_results_'.$_REQUEST['isp_id']][$_REQUEST['iface']] = $results;
     write_config("Save speedtest results");
-    echo $config['widgets']['speedtest2_results'][$_REQUEST['iface']];
+    echo $config['widgets']['speedtest_results_'.$_REQUEST['isp_id']][$_REQUEST['iface']] ;
     exit(0);
 } else {
-    $results = isset($config['widgets']['speedtest2_results']) ? $config['widgets']['speedtest2_results'] : [];
+    $results = isset($config['widgets']['speedtest_results_'.$isp_selected->{'id'}]) ? $config['widgets']['speedtest_results_'.$isp_selected->{'id'}] : [];
 ?>
 
 <?php if($isp_selected) { ?>
@@ -186,7 +185,6 @@ if (isset($_REQUEST['ajax']) && isset($_REQUEST['source_ip']) && isset($_REQUEST
 <script type="text/javascript">
 
 function add_st_row(iface, iface_name, iface_source_ip, results) {
-    //sp_iface_iface
     $('#<?=htmlspecialchars($widgetkey)?>-sttblbody:last-child').append('<tr id="sp_iface_'+iface+'"></tr>');
     $("#sp_iface_"+iface).append('<td class="speedtest-reload"><a href="#" class="fa fa-refresh"></a></td>')
     $("#sp_iface_"+iface).append('<td class="speedtest-iface">'+iface_name+'</td>');
@@ -246,18 +244,18 @@ function clear_st_row(iface) {
 
 function run_speedtest(iface, iface_source_ip) {
     $("#sp_iface_"+iface+' td.speedtest-reload a').addClass("fa-spin");
+    $("#sp_iface_"+iface+' td.speedtest-reload a').off();
     $.ajax({
         type: 'POST',
         url: "/widgets/widgets/speedtest.widget.php",
         dataType: 'json',
         data: {
             ajax: "ajax",
-            isp_id: <?=$isp_selected->{'id'}?>,
+            isp_id: '<?=$isp_selected->{'id'}?>',
             source_ip: iface_source_ip,
             iface: iface,
         },
         success: function(data) {
-    
             update_st_row(iface, data);
         },
         error: function(e) {
@@ -265,6 +263,7 @@ function run_speedtest(iface, iface_source_ip) {
         },
         complete: function() {
             $("#sp_iface_"+iface+' td.speedtest-reload a').removeClass("fa-spin");
+            $("#sp_iface_"+iface+' td.speedtest-reload a').on();
         }
     });
 
@@ -274,12 +273,10 @@ events.push(function() {
     <?php
     foreach ($ifdescrs as $ifdescr => $ifname){
         if (in_array($ifdescr, $skipinterfaces)) {
-            
             continue;
         }
         $ifinfo = get_interface_info($ifdescr);
         ?>
-        console.log('<?=$ifdescr?>', '<?=$ifname?>');
         add_st_row('<?=$ifdescr?>', '<?=$ifname?>', '<?=htmlspecialchars($ifinfo['ipaddr'])?>' <?=($results[$ifdescr])?', '.$results[$ifdescr]:''?>);
     <?php
     }
