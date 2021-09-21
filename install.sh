@@ -1,16 +1,7 @@
 #!/bin/sh
 
-if [ "$(cat /etc/version | cut -c 1-3)" == "2.4" ]; then
-        pkg install -y py37-speedtest-cli
-        fetch -q -o /usr/local/www/widgets/widgets/speedtest.widget.php https://raw.githubusercontent.com/joarli/pfsense-speedtest-widget/master/speedtest.widget.php
-fi
-
-if [ "$(cat /etc/version | cut -c 1-3)" == "2.5" ]; then
-        pkg install -y py38-speedtest-cli-2.1.3
-        fetch -q -o /usr/local/www/widgets/widgets/speedtest.widget.php https://raw.githubusercontent.com/joarli/pfsense-speedtest-widget/master/speedtest.widget.php
-fi
-
-if [ "$(cat /etc/version | cut -c 1-3)" == "21." ]; then #pfSense PLUS Edition
-        pkg install -y py38-speedtest-cli-2.1.3
-        fetch -q -o /usr/local/www/widgets/widgets/speedtest.widget.php https://raw.githubusercontent.com/joarli/pfsense-speedtest-widget/master/speedtest.widget.php
-fi
+sudo pkg update && sudo pkg install -g libidn2 ca_root_nss
+# Example how to remove conflicting or old versions using pkg
+# sudo pkg remove speedtest
+sudo pkg add "https://install.speedtest.net/app/cli/ookla-speedtest-1.0.0-freebsd.pkg"
+fetch -q -o /usr/local/www/widgets/widgets/speedtest.widget.php https://raw.githubusercontent.com/rudical/pfsense-speedtest-widget/master/speedtest.widget.php
