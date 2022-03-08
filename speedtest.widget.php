@@ -179,9 +179,6 @@ if (isset($_REQUEST['ajax']) && isset($_REQUEST['source_ip']) && isset($_REQUEST
 	</div>
 </form>
 
-
-
-
 <script type="text/javascript">
 
 function add_st_row(iface, iface_name, iface_source_ip, results) {
@@ -218,8 +215,8 @@ function update_st_row(iface, results) {
             if (results.results.type == 'result') {
                 $("#sp_iface_"+iface+" .speedtest-error").empty().hide();
                 $("#sp_iface_"+iface+" .speedtest-ping").html('<i class="fa fa-satellite-dish"></i> '+results.results.ping.latency.toFixed(2) + '<small> ms</small>').show();
-                $("#sp_iface_"+iface+" .speedtest-download").html('<i class="fa fa-download"></i> '+(results.results.download.bandwidth / 100000).toFixed(2) + '<small> Mbps</small>').show();
-                $("#sp_iface_"+iface+" .speedtest-upload").html('<i class="fa fa-upload"></i> '+(results.results.upload.bandwidth / 100000).toFixed(2) + '<small> Mbps</small>').show();
+                $("#sp_iface_"+iface+" .speedtest-download").html('<i class="fa fa-download"></i> '+(results.results.download.bandwidth / 125000).toFixed(2) + '<small> Mbps</small>').show();
+                $("#sp_iface_"+iface+" .speedtest-upload").html('<i class="fa fa-upload"></i> '+(results.results.upload.bandwidth / 125000).toFixed(2) + '<small> Mbps</small>').show();
                 $("#sp_iface_"+iface+" .speedtest-ts").html('<small>'+date+'</small>');
             } else {
                 $("#sp_iface_"+iface+" .speedtest-error").html('<small class="text-warning"><i class="fa fa-exclamation-triangle fa-1x"></i> '+results.results.message+'</small>').show();
@@ -231,8 +228,6 @@ function update_st_row(iface, results) {
         }
     } 
 }
-
-
 
 function clear_st_row(iface) {
     $("#sp_iface_"+iface+" .speedtest-ts").empty();
