@@ -28,7 +28,7 @@ function get_isp_list() {
         $jsonObj  = json_decode($getIsps);
         $ispsList = $jsonObj->{'servers'};
         if (is_null($jsonObj)) {
-          throw ('Error');
+          throw new Exception('Error');
         }
     } catch (Exception $e) {
 
