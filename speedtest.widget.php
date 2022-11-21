@@ -3,6 +3,7 @@
 /*
  * speedtest.widget.php
  *
+ * Copyright (c) 2022 Ryan Gibbons <rtgibbosn23@gmail.com>
  * Copyright (c) 2020 Alon Noy
  *
  * Licensed under the GPL, Version 3.0 (the "License");
@@ -55,6 +56,10 @@ if ($_REQUEST['ajax']) {
 		<td colspan="2" id="speedtest-host">N/A</td>
 	</tr>
 	<tr>
+		<td>Result</td>
+		<td colspan="2" id="speedtest-result">N/A</td>
+	</tr>
+	<tr>
 		<td colspan="3" id="speedtest-ts" style="font-size: 0.8em;">&nbsp;</td>
 	</tr>
 </table>
@@ -64,12 +69,12 @@ function update_result(results) {
     if(results != null) {
     	var date = new Date(results.timestamp);
     	$("#speedtest-ts").html(date);
-    	$("#speedtest-ping").html(results.ping.toFixed(2) + "<small> ms</small>");
-    	$("#speedtest-download").html((results.download / 1000000).toFixed(2) + "<small> Mbps</small>");
-    	$("#speedtest-upload").html((results.upload / 1000000).toFixed(2) + "<small> Mbps</small>");
-    	$("#speedtest-upload").html((results.upload / 1000000).toFixed(2) + "<small> Mbps</small>");
-    	$("#speedtest-isp").html(results.client.isp);
-    	$("#speedtest-host").html(results.server.name);
+    	$("#speedtest-ping").html(results.ping.latency.toFixed(1) + "<small> ms</small>");
+    	$("#speedtest-download").html((results.download.bandwidth / 125000).toFixed(2) + "<small> Mbps</small><br /><small>" + results.download.latency.iqm.toFixed(1) + "ms</small>");
+    	$("#speedtest-upload").html((results.upload.bandwidth / 125000).toFixed(2) + "<small> Mbps</small><br /><small>" + results.upload.latency.iqm.toFixed(1) + "ms</small>");
+    	$("#speedtest-isp").html(results.isp);
+    	$("#speedtest-host").html(results.server.name + " (" + results.server.location + ")");
+    	$("#speedtest-result").html("<a href="+results.result.url+" target=_blank>"+results.result.id+"</a>");
     } else {
     	$("#speedtest-ts").html("Speedtest failed");
     	$("#speedtest-ping").html("N/A");
