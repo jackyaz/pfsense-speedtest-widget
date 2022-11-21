@@ -15,3 +15,4 @@ Copy the widget file **speedtest.widget.php** to **/usr/local/www/widgets/widget
 
 Install the widget on your dashboard.
 
+<img alt="Speedtest Widgest Screenshot" width="500px" src="speedtest-widget.png" />
