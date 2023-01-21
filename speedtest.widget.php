@@ -3,6 +3,7 @@
 /*
  * speedtest.widget.php
  *
+ * Copyright (c) 2022 Ryan Gibbons <rtgibbosn23@gmail.com>
  * Copyright (c) 2020 Alon Noy
  * Copyright (c) 2021 Rudie Shahinian
  *
@@ -32,6 +33,14 @@ function get_isp_list() {
         }
     } catch (Exception $e) {
 
+if ($_REQUEST['ajax']) {
+    $results = shell_exec("speedtest -f json");
+    if(($results !== null) && (json_decode($results) !== null)) {
+        $config['widgets']['speedtest_result'] = $results;
+        write_config("Save speedtest results");
+        echo $results;
+    } else {
+        echo json_encode(null);
     }
     return $ispsList;
 }
@@ -56,7 +65,7 @@ if ($_POST['widgetkey'] && !$_REQUEST['ajax']) {
 	if ($_POST['ispselect']) {
         $isp_selected_key = array_search($_POST['ispselect'], array_column($isps_list, 'id'));
 		$user_settings['widgets'][$_POST['widgetkey']]['ispselected'] = json_encode($isps_list[$isp_selected_key]);
-	} 
+	}
     save_widget_settings($_SESSION['Username'], $user_settings["widgets"], gettext("Updated speedtest widget settings via dashboard."));
 	header("Location: /");
     exit(0);
@@ -130,56 +139,55 @@ if (isset($_REQUEST['ajax']) && isset($_REQUEST['source_ip']) && isset($_REQUEST
 <?php
 				foreach ($isps_list as $i => $isp):
 ?>
-						<tr>
-							<td><?=$isp->{'name'}?> (<?=$isp->{'location'}?>)</td>
-							<td class="col-sm-2"><input id="ispselect_<?=$isp->{'id'}?>" name ="ispselect" value="<?=$isp->{'id'}?>" type="radio" <?=($isp->{'id'} === $isp_selected->{'id'} ? 'checked':'')?>></td>
-						</tr>
-<?php
-				endforeach;
-?>
-						
-					</tbody>
-				</table>
-			</div>
-		</div>
-	</div>
-    <div class="panel panel-default col-sm-10">
-		<div class="panel-body">
-			<div class="table responsive">
-				<table class="table table-striped table-hover table-condensed">
-					<thead>
-						<tr>
-							<th><?=gettext("Interface")?></th>
-							<th><?=gettext("Show")?></th>
-						</tr>
-					</thead>
-					<tbody>
-<?php
-				$skipinterfaces = explode(",", $user_settings['widgets'][$widgetkey]['iffilter']);
-
-				foreach ($ifdescrs as $ifdescr => $ifname):
-?>
-						<tr>
-							<td><?=$ifname?></td>
-							<td class="col-sm-2"><input id="ifaces[]" name ="ifaces[]" value="<?=$ifdescr?>" type="checkbox" <?=(!in_array($ifdescr, $skipinterfaces) ? 'checked':'')?>></td>
-						</tr>
-<?php
-				endforeach;
-?>
-					</tbody>
-				</table>
-			</div>
-		</div>
-	</div>
-
-	<div class="form-group">
-		<div class="col-sm-offset-3 col-sm-6">
-			<button type="submit" class="btn btn-primary"><i class="fa fa-save icon-embed-btn"></i><?=gettext('Save')?></button>
-		</div>
-	</div>
-</form>
-
+<table class="table">
+	<tr>
+		<td><h4>Ping <i class="fa fa-exchange"></h4></td>
+		<td><h4>Download <i class="fa fa-download"></i></h4></td>
+		<td><h4>Upload <i class="fa fa-upload"></h4></td>
+	</tr>
+	<tr>
+		<td><h4 id="speedtest-ping">N/A</h4></td>
+		<td><h4 id="speedtest-download">N/A</h4></td>
+		<td><h4 id="speedtest-upload">N/A</h4></td>
+	</tr>
+	<tr>
+		<td>ISP</td>
+		<td colspan="2" id="speedtest-isp">N/A</td>
+	</tr>
+	<tr>
+		<td>Host</td>
+		<td colspan="2" id="speedtest-host">N/A</td>
+	</tr>
+	<tr>
+		<td>Result</td>
+		<td colspan="2" id="speedtest-result">N/A</td>
+	</tr>
+	<tr>
+		<td colspan="3" id="speedtest-ts" style="font-size: 0.8em;">&nbsp;</td>
+	</tr>
+</table>
+<a id="updspeed" href="#" class="fa fa-refresh" style="display: none;"></a>
 <script type="text/javascript">
+function update_result(results) {
+    if(results != null) {
+    	var date = new Date(results.timestamp);
+    	$("#speedtest-ts").html(date);
+    	$("#speedtest-ping").html(results.ping.latency.toFixed(1) + "<small> ms</small>");
+    	$("#speedtest-download").html((results.download.bandwidth / 125000).toFixed(2) + "<small> Mbps</small><br /><small>" + results.download.latency.iqm.toFixed(1) + "ms</small>");
+    	$("#speedtest-upload").html((results.upload.bandwidth / 125000).toFixed(2) + "<small> Mbps</small><br /><small>" + results.upload.latency.iqm.toFixed(1) + "ms</small>");
+    	$("#speedtest-isp").html(results.isp);
+    	$("#speedtest-host").html(results.server.name + " (" + results.server.location + ")");
+    	$("#speedtest-result").html("<a href="+results.result.url+" target=_blank>"+results.result.id+"</a>");
+    } else {
+    	$("#speedtest-ts").html("Speedtest failed");
+    	$("#speedtest-ping").html("N/A");
+    	$("#speedtest-download").html("N/A");
+    	$("#speedtest-upload").html("N/A");
+    	$("#speedtest-upload").html("N/A");
+    	$("#speedtest-isp").html("N/A");
+    	$("#speedtest-host").html("N/A");
+    }
+}
 
 function add_st_row(iface, iface_name, iface_source_ip, results) {
     $('#<?=htmlspecialchars($widgetkey)?>-sttblbody:last-child').append('<tr id="sp_iface_'+iface+'"></tr>');
@@ -226,7 +234,7 @@ function update_st_row(iface, results) {
                 $("#sp_iface_"+iface+" .speedtest-ts").html('<small>'+date+'</small>');
             }
         }
-    } 
+    }
 }
 
 function clear_st_row(iface) {
