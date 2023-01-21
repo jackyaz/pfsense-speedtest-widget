@@ -73,7 +73,7 @@ if($user_settings['widgets'][$widgetkey]['ispselected']) {
     $isp_selected = json_decode($user_settings['widgets'][$widgetkey]['ispselected']);
 };
 if (isset($_REQUEST['ajax']) && isset($_REQUEST['source_ip']) && isset($_REQUEST['isp_id']) && isset($_REQUEST['iface'])) {
-    $st_cmd = 'speedtest -s ' . $_REQUEST['isp_id'] . ' -i ' . $_REQUEST['source_ip'] . ' -f json 2>&1';
+    $st_cmd = 'speedtest --accept-license --accept-gdpr -s ' . $_REQUEST['isp_id'] . ' -i ' . $_REQUEST['source_ip'] . ' -f json 2>&1';
     $speedtest = shell_exec($st_cmd);
     $results = '{"iface": "'.$_REQUEST['iface'].'", "cmd": "'.$st_cmd.'", "results": '.end(preg_split("/\n/",trim($speedtest))).'}';
    
