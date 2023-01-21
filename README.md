@@ -24,7 +24,7 @@ Enable the widget on your dashboard.
 
 - Run this command:
 
-fetch -q -o - https://raw.githubusercontent.com/rudecles/pfsense-speedtest-widget/master/install.sh | sh
+fetch -q -o - https://raw.githubusercontent.com/jackyaz/pfsense-speedtest-widget/master/install.sh | sh
 
 Enable the widget on your Dashboard.
 
