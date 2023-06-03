@@ -40,32 +40,32 @@ $ifdescrs = get_configured_interface_with_descr();
 $isps_list = get_isp_list();
 
 if ($_POST['widgetkey'] && !$_REQUEST['ajax']) {
-	set_customwidgettitle($user_settings);
+    set_customwidgettitle($user_settings);
 
-	$validNames = array();
+    $validNames = array();
 
-	foreach ($ifdescrs as $ifdescr => $ifname) {
-		array_push($validNames, $ifdescr);
-	}
-	if (is_array($_POST['ifaces'])) {
-		$user_settings['widgets'][$_POST['widgetkey']]['iffilter'] = implode(',', array_diff($validNames, $_POST['ifaces']));
-	} else {
-		$user_settings['widgets'][$_POST['widgetkey']]['iffilter'] = implode(',', $validNames);
-	}
+    foreach ($ifdescrs as $ifdescr => $ifname) {
+        array_push($validNames, $ifdescr);
+    }
+    if (is_array($_POST['ifaces'])) {
+        $user_settings['widgets'][$_POST['widgetkey']]['iffilter'] = implode(',', array_diff($validNames, $_POST['ifaces']));
+    } else {
+        $user_settings['widgets'][$_POST['widgetkey']]['iffilter'] = implode(',', $validNames);
+    }
 
-	if ($_POST['ispselect']) {
+    if ($_POST['ispselect']) {
         $isp_selected_key = array_search($_POST['ispselect'], array_column($isps_list, 'id'));
-		$user_settings['widgets'][$_POST['widgetkey']]['ispselected'] = json_encode($isps_list[$isp_selected_key]);
-	} 
+        $user_settings['widgets'][$_POST['widgetkey']]['ispselected'] = json_encode($isps_list[$isp_selected_key]);
+    } 
     save_widget_settings($_SESSION['Username'], $user_settings["widgets"], gettext("Updated speedtest widget settings via dashboard."));
-	header("Location: /");
+    header("Location: /");
     exit(0);
 }
 
 // When this widget is included in the dashboard, $widgetkey is already defined before the widget is included.
 // When the ajax call is made to refresh the interfaces table, 'widgetkey' comes in $_REQUEST.
 if ($_REQUEST['widgetkey']) {
-	$widgetkey = $_REQUEST['widgetkey'];
+    $widgetkey = $_REQUEST['widgetkey'];
 }
 
 $isp_selected = $isps_list[0];
@@ -87,7 +87,7 @@ if (isset($_REQUEST['ajax']) && isset($_REQUEST['source_ip']) && isset($_REQUEST
 
 <?php if($isp_selected) { ?>
 <div class="table-responsive" >
-	<table class="table table-condensed">
+    <table class="table table-condensed">
         <tr>
             <td>Selected ISP: <?=$isp_selected->{'name'}?> (<?=$isp_selected->{'location'}?>)</td>
         </tr>
@@ -95,88 +95,88 @@ if (isset($_REQUEST['ajax']) && isset($_REQUEST['source_ip']) && isset($_REQUEST
 </div>
 <?php } ?>
 <div class="table-responsive">
-	<table class="table table-striped table-hover table-condensed">
-		<thead>
-			<tr>
-				<th>&nbsp;</th>
-				<th>Interface</th>
-				<th style="text-align: center;" >Ping</th>
-				<th style="text-align: center;" >Download</th>
-				<th style="text-align: center;" >Upload</th>
-				<th>Date</th>
-			</tr>
-		</thead>
-		<tbody id="<?=htmlspecialchars($widgetkey)?>-sttblbody">
-		</tbody>
-	</table>
+    <table class="table table-striped table-hover table-condensed">
+        <thead>
+            <tr>
+                <th>&nbsp;</th>
+                <th>Interface</th>
+                <th style="text-align: center;" >Ping</th>
+                <th style="text-align: center;" >Download</th>
+                <th style="text-align: center;" >Upload</th>
+                <th>Date</th>
+            </tr>
+        </thead>
+        <tbody id="<?=htmlspecialchars($widgetkey)?>-sttblbody">
+        </tbody>
+    </table>
 </div>
 
 </div><div id="<?=$widget_panel_footer_id?>" class="panel-footer collapse">
 <form action="/widgets/widgets/speedtest.widget.php" method="post" class="form-horizontal">
-	<?=gen_customwidgettitle_div($widgetconfig['title']); ?>
+    <?=gen_customwidgettitle_div($widgetconfig['title']); ?>
 
     <div class="panel panel-default col-sm-10">
-		<div class="panel-body">
-			<input type="hidden" name="widgetkey" value="<?=htmlspecialchars($widgetkey); ?>">
-			<div class="table responsive">
-				<table class="table table-striped table-hover table-condensed" id="isp_list_selection">
-					<thead>
-						<tr>
-							<th>ISP</th>
-							<th>Select</th>
-						</tr>
-					</thead>
-					<tbody >
+        <div class="panel-body">
+            <input type="hidden" name="widgetkey" value="<?=htmlspecialchars($widgetkey); ?>">
+            <div class="table responsive">
+                <table class="table table-striped table-hover table-condensed" id="isp_list_selection">
+                    <thead>
+                        <tr>
+                            <th>ISP</th>
+                            <th>Select</th>
+                        </tr>
+                    </thead>
+                    <tbody >
 <?php
-				foreach ($isps_list as $i => $isp):
+                foreach ($isps_list as $i => $isp):
 ?>
-						<tr>
-							<td><?=$isp->{'name'}?> (<?=$isp->{'location'}?>)</td>
-							<td class="col-sm-2"><input id="ispselect_<?=$isp->{'id'}?>" name ="ispselect" value="<?=$isp->{'id'}?>" type="radio" <?=($isp->{'id'} === $isp_selected->{'id'} ? 'checked':'')?>></td>
-						</tr>
+                        <tr>
+                            <td><?=$isp->{'name'}?> (<?=$isp->{'location'}?>)</td>
+                            <td class="col-sm-2"><input id="ispselect_<?=$isp->{'id'}?>" name ="ispselect" value="<?=$isp->{'id'}?>" type="radio" <?=($isp->{'id'} === $isp_selected->{'id'} ? 'checked':'')?>></td>
+                        </tr>
 <?php
-				endforeach;
+                endforeach;
 ?>
-						
-					</tbody>
-				</table>
-			</div>
-		</div>
-	</div>
+                        
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
     <div class="panel panel-default col-sm-10">
-		<div class="panel-body">
-			<div class="table responsive">
-				<table class="table table-striped table-hover table-condensed">
-					<thead>
-						<tr>
-							<th><?=gettext("Interface")?></th>
-							<th><?=gettext("Show")?></th>
-						</tr>
-					</thead>
-					<tbody>
+        <div class="panel-body">
+            <div class="table responsive">
+                <table class="table table-striped table-hover table-condensed">
+                    <thead>
+                        <tr>
+                            <th><?=gettext("Interface")?></th>
+                            <th><?=gettext("Show")?></th>
+                        </tr>
+                    </thead>
+                    <tbody>
 <?php
-				$skipinterfaces = explode(",", $user_settings['widgets'][$widgetkey]['iffilter']);
+                $skipinterfaces = explode(",", $user_settings['widgets'][$widgetkey]['iffilter']);
 
-				foreach ($ifdescrs as $ifdescr => $ifname):
+                foreach ($ifdescrs as $ifdescr => $ifname):
 ?>
-						<tr>
-							<td><?=$ifname?></td>
-							<td class="col-sm-2"><input id="ifaces[]" name ="ifaces[]" value="<?=$ifdescr?>" type="checkbox" <?=(!in_array($ifdescr, $skipinterfaces) ? 'checked':'')?>></td>
-						</tr>
+                        <tr>
+                            <td><?=$ifname?></td>
+                            <td class="col-sm-2"><input id="ifaces[]" name ="ifaces[]" value="<?=$ifdescr?>" type="checkbox" <?=(!in_array($ifdescr, $skipinterfaces) ? 'checked':'')?>></td>
+                        </tr>
 <?php
-				endforeach;
+                endforeach;
 ?>
-					</tbody>
-				</table>
-			</div>
-		</div>
-	</div>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 
-	<div class="form-group">
-		<div class="col-sm-offset-3 col-sm-6">
-			<button type="submit" class="btn btn-primary"><i class="fa fa-save icon-embed-btn"></i><?=gettext('Save')?></button>
-		</div>
-	</div>
+    <div class="form-group">
+        <div class="col-sm-offset-3 col-sm-6">
+            <button type="submit" class="btn btn-primary"><i class="fa fa-save icon-embed-btn"></i><?=gettext('Save')?></button>
+        </div>
+    </div>
 </form>
 
 <script type="text/javascript">
